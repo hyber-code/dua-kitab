@@ -485,7 +485,7 @@
     if (!ul.children.length) msg.textContent = 'Loading the latest bayans...';
     fetch('api/bayans').then(function (r) { return r.json(); }).then(function (j) {
       if (!j.videos || !j.videos.length) throw new Error('empty');
-      msg.textContent = 'Latest ' + j.videos.length + ' bayans. Tap one to play. Needs internet.';
+      msg.textContent = 'Latest ' + j.videos.length + '. Tap one to play.';
       ul.textContent = '';
       j.videos.forEach(function (v) {
         var li = document.createElement('li'), b = document.createElement('button');
@@ -506,7 +506,7 @@
     fetch('/api/live', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
       liveNow = j && j.live && /^[\w-]{11}$/.test(j.id) ? j : null;
       document.querySelector('#hBayans .live-badge').hidden = !liveNow;
-      var c = $('liveCard'); c.hidden = !liveNow;
+      var c = $('liveCard'); c.hidden = !liveNow; $('liveIdle').hidden = !!liveNow;
       if (liveNow) { c.querySelector('img').src = 'https://i.ytimg.com/vi/' + liveNow.id + '/hqdefault_live.jpg'; $('liveTitle').textContent = liveNow.title || ''; }
     }).catch(function () {});
   }
