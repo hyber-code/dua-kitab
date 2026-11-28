@@ -1,9 +1,9 @@
 /* Dua Kitab service worker: makes the app work offline.
    Page images: saved once, then always read from the phone.
    App files: fresh copy when online, saved copy when offline. */
-var SHELL = 'shell-v2';
-var SHELL_FILES = ['./', 'index.html', 'style.css?v=2', 'app.js?v=2', 'data.json', 'manifest.webmanifest',
-  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
+var SHELL = 'shell-v3';
+var SHELL_FILES = ['./', 'index.html', 'style.css?v=3', 'app.js?v=3', 'data.json', 'manifest.webmanifest',
+  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/qr.svg'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(SHELL).then(function (c) { return c.addAll(SHELL_FILES); }).then(function () { return self.skipWaiting(); }));

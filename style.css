@@ -150,3 +150,8 @@ html.dark .tile .art img{filter:invert(.9) hue-rotate(180deg)}
 .tile .tt{display:block;padding:9px 11px 0;font-size:16px;font-weight:700}
 .tile .ts{display:block;padding:2px 11px 11px;font-size:13px;color:var(--muted)}
 .tile:active{transform:scale(.98)}
+
+/* share the app (QR) */
+.qr-box{text-align:center}
+.qr-box img{display:block;width:220px;height:220px;margin:6px auto 4px;border-radius:8px}
+.qr-box p{margin:6px 0}

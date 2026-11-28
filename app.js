@@ -354,7 +354,8 @@
     showPanel('home');
   }
   $('tBook1').onclick = closePanel;
-  $('hShare').onclick = function () {
+  $('hShare').onclick = function () { showPanel('appShare'); };
+  $('appShareLink').onclick = function () {
     var url = SITE;
     if (navigator.share) navigator.share({ title: D.title, text: 'Dua Kitab: the Complete Dua Book, free to read offline.', url: url }).catch(function () {});
     else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { toast('Link copied'); });
