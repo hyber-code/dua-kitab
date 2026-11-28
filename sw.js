@@ -1,9 +1,9 @@
 /* Dua Kitab service worker: makes the app work offline.
    Page images: saved once, then always read from the phone.
    App files: fresh copy when online, saved copy when offline. */
-var SHELL = 'shell-v4';
-var SHELL_FILES = ['./', 'index.html', 'style.css?v=3', 'app.js?v=4', 'data.json', 'manifest.webmanifest',
-  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/qr.svg'];
+var SHELL = 'shell-v5';
+var SHELL_FILES = ['./', 'index.html', 'style.css?v=5', 'app.js?v=5', 'data.json', 'manifest.webmanifest',
+  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/qr.svg', 'pages/e1/001.webp', 'new/', 'new/data.json', 'new/cover.webp'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(SHELL).then(function (c) { return c.addAll(SHELL_FILES); }).then(function () { return self.skipWaiting(); }));
@@ -16,7 +16,7 @@ self.addEventListener('activate', function (e) {
 });
 
 function pageImage(req) {
-  var m = /\/pages\/(e\d+)\//.exec(req.url);
+  var m = /\/pages\/([a-z]+\d+)\//.exec(req.url);
   return caches.match(req.url).then(function (hit) {
     if (hit) return hit;
     return fetch(req).then(function (res) {
@@ -45,5 +45,5 @@ function appFile(req) {
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
-  e.respondWith(/\/pages\/e\d+\//.test(req.url) ? pageImage(req) : appFile(req));
+  e.respondWith(/\/pages\/[a-z]+\d+\//.test(req.url) ? pageImage(req) : appFile(req));
 });

@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Dua Kitab">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -50,10 +50,15 @@
   <div class="panel-head"><h2>Dua Kitab</h2><button class="close" data-close>Close</button></div>
   <div class="panel-body home-body">
     <div class="shelf">
-      <button id="tBook1" class="tile">
-        <span class="art"><img id="coverImg" alt="" width="1288" height="1700"></span>
+      <button id="tBook1" class="tile" data-book="main" data-key="duakitab.v1" data-href="/#read">
+        <span class="art"><img src="/pages/e1/001.webp" alt="" width="1288" height="1700"></span>
         <span class="tt">Dua Kitab</span>
-        <span class="ts" id="tBook1Sub">Open the book</span>
+        <span class="ts">Open the book</span>
+      </button>
+      <button id="tBook2" class="tile" data-book="new" data-key="duakitab.new.v1" data-href="/new/#read">
+        <span class="art"><img src="/new/cover.webp" alt="" width="1288" height="1700"></span>
+        <span class="tt">New Duas</span>
+        <span class="ts">Open the book</span>
       </button>
       <button id="hBayans" class="tile">
         <span class="art yt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke-width="1.6"/><path d="M9.6 7.6v8.8l7-4.4z"/></svg><span>Imani Majalis</span></span>
@@ -176,6 +181,6 @@
 <div id="toast" hidden></div>
 <div id="scrim" hidden></div>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

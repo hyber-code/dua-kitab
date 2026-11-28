@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>New Duas - Dua Kitab</title>
+<meta name="description" content="Complete Dua Book. Read offline, with contents, bookmarks and highlights.">
+<meta name="theme-color" content="#14532d">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dua Kitab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="../style.css?v=5">
+</head>
+<body>
+
+<main id="reader" aria-label="Book pages"></main>
+
+<header id="top" class="bar">
+  <button id="prev" class="txt" aria-label="Previous page">&#8249; Prev</button>
+  <button id="pageBtn" class="txt strong" aria-label="Go to page">Page <span id="cur">1</span> of <span id="tot">1</span></button>
+  <button id="next" class="txt" aria-label="Next page">Next &#8250;</button>
+  <button id="themeBtn" class="ico" aria-label="Dark mode on or off">
+    <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" fill="none" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<button id="backChip" hidden></button>
+
+<div id="hlBanner" hidden>
+  <span>Highlighter on. Drag across a dua. Tap a highlight to remove it.</span>
+  <button id="hlDone">Done</button>
+</div>
+
+<nav id="bar" class="bar">
+  <button id="bHome"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+  <button id="bIndex"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke-width="2.2" stroke-linecap="round"/></svg><span>Index</span></button>
+  <button id="bMarks"><svg viewBox="0 0 24 24"><path d="M5 4h9a2 2 0 0 1 2 2v14l-6.5-4L3 20V6a2 2 0 0 1 2-2z" fill="none" stroke-width="2"/><path d="M19 7v13l-2-1.2" fill="none" stroke-width="2" stroke-linecap="round"/></svg><span>Bookmarks</span></button>
+  <button id="bSave"><svg viewBox="0 0 24 24"><path class="fillable" d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z" stroke-width="2"/></svg><span id="saveLbl">Save page</span></button>
+  <button id="bHl"><svg viewBox="0 0 24 24"><path d="M14.5 4.5 19.5 9.5 10 19H5v-5z" fill="none" stroke-width="2" stroke-linejoin="round"/><path d="M3 22h18" fill="none" stroke-width="2" stroke-linecap="round"/></svg><span>Highlight</span></button>
+  <button id="bShare"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8 15.7 6.4M8.3 13.2l7.4 4.4" fill="none" stroke-width="2"/></svg><span>Share</span></button>
+</nav>
+
+<!-- Home -->
+<section id="home" class="sheet-panel full" hidden>
+  <div class="panel-head"><h2>Dua Kitab</h2><button class="close" data-close>Close</button></div>
+  <div class="panel-body home-body">
+    <div class="shelf">
+      <button id="tBook1" class="tile" data-book="main" data-key="duakitab.v1" data-href="/#read">
+        <span class="art"><img src="/pages/e1/001.webp" alt="" width="1288" height="1700"></span>
+        <span class="tt">Dua Kitab</span>
+        <span class="ts">Open the book</span>
+      </button>
+      <button id="tBook2" class="tile" data-book="new" data-key="duakitab.new.v1" data-href="/new/#read">
+        <span class="art"><img src="/new/cover.webp" alt="" width="1288" height="1700"></span>
+        <span class="tt">New Duas</span>
+        <span class="ts">Open the book</span>
+      </button>
+      <button id="hBayans" class="tile">
+        <span class="art yt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke-width="1.6"/><path d="M9.6 7.6v8.8l7-4.4z"/></svg><span>Imani Majalis</span></span>
+        <span class="tt">Bayans</span>
+        <span class="ts">Latest talks on YouTube</span>
+      </button>
+    </div>
+    <div class="home-actions">
+
+      <h3>Reading style</h3>
+      <div class="seg" id="modeSeg">
+        <button data-mode="scroll">Scroll</button>
+        <button data-mode="paged">Page by page</button>
+      </div>
+
+      <h3>Display</h3>
+      <div class="seg" id="themeSeg">
+        <button data-theme="auto">Auto</button>
+        <button data-theme="light">Light</button>
+        <button data-theme="dark">Dark</button>
+      </div>
+
+      <h3>Share and install</h3>
+      <button id="hShare">Share this app</button>
+      <button id="hInstall">How to install</button>
+
+      <p class="small" id="offlineInfo"></p>
+      <p class="small" id="editionInfo"></p>
+      <p class="small">Bookmarks and highlights are saved on this phone only.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Index -->
+<section id="index" class="sheet-panel" hidden>
+  <div class="panel-head"><h2>Contents</h2><button class="close" data-close>Close</button></div>
+  <input id="indexSearch" type="search" placeholder="Search sections" autocomplete="off">
+  <div class="panel-body"><ul id="indexList" class="list"></ul></div>
+</section>
+
+<!-- Bookmarks -->
+<section id="marks" class="sheet-panel" hidden>
+  <div class="panel-head"><h2>Bookmarks</h2><button class="close" data-close>Close</button></div>
+  <div class="panel-body">
+    <ul id="marksList" class="list"></ul>
+    <h3 class="list-h">Highlighted pages</h3>
+    <ul id="hlList" class="list"></ul>
+  </div>
+</section>
+
+<!-- Share the app -->
+<section id="appShare" class="dialog" hidden>
+  <div class="qr-box">
+    <h2>Share Dua Kitab</h2>
+    <img src="../icons/qr.svg" alt="QR code for duabook.uk" width="220" height="220">
+    <p><b>duabook.uk</b></p>
+    <p class="small">Someone next to you can point their phone camera at this code to open the app.</p>
+    <div class="row"><button data-close>Close</button><button id="appShareLink" class="primary">Send the link</button></div>
+  </div>
+</section>
+
+<!-- Share a dua -->
+<section id="shareDlg" class="dialog" hidden>
+  <div>
+    <h2>Share this dua</h2>
+    <p id="shareWhat"></p>
+    <div id="shareThumbs" class="thumbs"></div>
+    <div class="row"><button id="shareLess">&minus; Remove last page</button><button id="shareMore">+ Next page</button></div>
+    <p class="small">If the dua carries on over the page, tap "+ Next page" until all of it is included. The pages are sent as pictures, in order, with a link to the app.</p>
+    <div class="row"><button data-close>Cancel</button><button id="shareGo" class="primary">Share</button></div>
+  </div>
+</section>
+
+<!-- Bayans -->
+<section id="bayans" class="sheet-panel full" hidden>
+  <div class="panel-head"><h2>Bayans</h2><button class="close" data-close>Close</button></div>
+  <div id="player" hidden></div>
+  <div class="panel-body" id="bayanBody">
+    <p id="bayanMsg" class="small pad"></p>
+    <ul id="bayanList" class="vids"></ul>
+    <a id="bayanAll" class="allyt" href="https://www.youtube.com/@imanimajalis/videos" target="_blank" rel="noopener">See all bayans on YouTube</a>
+  </div>
+</section>
+
+<!-- Go to page -->
+<section id="goto" class="dialog" hidden>
+  <form id="gotoForm">
+    <label for="gotoInput">Go to page (1 to <span id="gotoMax"></span>)</label>
+    <input id="gotoInput" type="number" inputmode="numeric" min="1" required>
+    <div class="row"><button type="button" data-close>Cancel</button><button class="primary" type="submit">Go</button></div>
+  </form>
+</section>
+
+<!-- Install help -->
+<section id="install" class="dialog" hidden>
+  <div>
+    <h2>Add to your home screen</h2>
+    <div id="installIos">
+      <p><b>iPhone or iPad</b></p>
+      <ol>
+        <li>Tap the <b>Share</b> button <svg class="inl" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> (bottom of Safari, or top right in Chrome).</li>
+        <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
+        <li>Tap <b>Add</b>. Open it from the new icon.</li>
+      </ol>
+    </div>
+    <div id="installAndroid">
+      <p><b>Android</b></p>
+      <ol>
+        <li>Tap the <b>three dots</b> menu at the top right of Chrome.</li>
+        <li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li>
+      </ol>
+      <button id="installNow" class="primary" hidden>Install now</button>
+    </div>
+    <p class="small">Once added, it opens like a normal app and works without internet.</p>
+    <div class="row"><button data-close>Close</button></div>
+  </div>
+</section>
+
+<div id="hint" hidden><span>Add this book to your home screen to read offline.</span><button id="hintHow">Show me</button><button id="hintX" aria-label="Dismiss">&#10005;</button></div>
+<div id="toast" hidden></div>
+<div id="scrim" hidden></div>
+
+<script>window.BOOK = { id: "new", data: "data.json", key: "duakitab.new.v1", sw: "/sw.js", url: "new/" };</script>
+<script src="../app.js?v=5"></script>
+</body>
+</html>
