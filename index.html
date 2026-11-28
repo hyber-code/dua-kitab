@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Dua Kitab">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -57,6 +57,7 @@
       </button>
       <button id="hBayans" class="tile">
         <span class="art yt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke-width="1.6"/><path d="M9.6 7.6v8.8l7-4.4z"/></svg><span>Imani Majalis</span></span>
+        <span class="live-badge" hidden>&#9679; LIVE</span>
         <span class="tt">Bayans</span>
         <span class="ts">Latest talks on YouTube</span>
       </button>
@@ -132,9 +133,22 @@
   <div class="panel-head"><h2>Bayans</h2><button class="close" data-close>Close</button></div>
   <div id="player" hidden></div>
   <div class="panel-body" id="bayanBody">
+    <button id="liveCard" class="live-card" hidden>
+      <span class="lc-img"><img alt=""><span class="live-badge">&#9679; LIVE</span></span>
+      <span class="lc-txt"><b>Watch live now</b><span id="liveTitle" dir="auto"></span></span>
+    </button>
     <p id="bayanMsg" class="small pad"></p>
     <ul id="bayanList" class="vids"></ul>
     <a id="bayanAll" class="allyt" href="https://www.youtube.com/@imanimajalis/videos" target="_blank" rel="noopener">See all bayans on YouTube</a>
+  </div>
+</section>
+
+<!-- Close the app? -->
+<section id="exitDlg" class="dialog" hidden>
+  <div>
+    <h2>Close Dua Kitab?</h2>
+    <p>Are you sure you want to close the app?</p>
+    <div class="row"><button id="exitStay">Stay</button><button id="exitGo" class="primary">Close</button></div>
   </div>
 </section>
 
@@ -176,6 +190,6 @@
 <div id="toast" hidden></div>
 <div id="scrim" hidden></div>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

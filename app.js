@@ -324,13 +324,27 @@
     openPanel = id; $(id).hidden = false; $('scrim').hidden = false;
     try { history.pushState({ panel: id }, ''); } catch (e) {}
   }
+  var closing = false, leaving = false;
   function hidePanel() { if (!openPanel) return; if (openPanel === 'bayans') stopPlayer(); $(openPanel).hidden = true; $('scrim').hidden = true; openPanel = null; }
   function closePanel() {
     if (!openPanel) return;
+    if (openPanel === 'exitDlg') { hidePanel(); try { history.pushState({ guard: 1 }, ''); } catch (e) {} return; }
     hidePanel();
-    try { if (history.state && history.state.panel) history.back(); } catch (e) {}
+    try { if (history.state && history.state.panel) { closing = true; history.back(); } } catch (e) {}
   }
-  window.addEventListener('popstate', hidePanel);
+  /* Back button: closes an open panel; at the reading level it asks before closing the app. */
+  window.addEventListener('popstate', function () {
+    if (closing) { closing = false; return; }
+    if (openPanel) { hidePanel(); return; }
+    if (leaving || !D) return;
+    openPanel = 'exitDlg'; $('exitDlg').hidden = false; $('scrim').hidden = false;   // shown without a new history entry
+  });
+  $('exitStay').onclick = closePanel;
+  $('exitGo').onclick = function () {
+    leaving = true; hidePanel();
+    try { window.close(); } catch (e) {}
+    setTimeout(function () { toast('Press Back once more to close.', null, null, 4000); }, 300);
+  };
   $('scrim').onclick = closePanel;
   document.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) closePanel(); });
 
@@ -352,6 +366,7 @@
   function showHome() {
     $('tBook1Sub').textContent = cur > 1 ? 'Continue at page ' + cur : 'Open the book';
     showPanel('home');
+    checkLive();
   }
   $('tBook1').onclick = closePanel;
   $('hShare').onclick = function () { showPanel('appShare'); };
@@ -466,7 +481,20 @@
       if (!ul.children.length) msg.textContent = 'Could not load the bayans. They need an internet connection. Please try again later.';
     });
   }
-  $('hBayans').onclick = function () { showPanel('bayans'); loadBayans(); };
+  var liveNow = null;
+  function checkLive() {
+    if (navigator.onLine === false) return;
+    fetch('/api/live', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+      liveNow = j && j.live && /^[\w-]{11}$/.test(j.id) ? j : null;
+      document.querySelector('#hBayans .live-badge').hidden = !liveNow;
+      var c = $('liveCard'); c.hidden = !liveNow;
+      if (liveNow) { c.querySelector('img').src = 'https://i.ytimg.com/vi/' + liveNow.id + '/hqdefault_live.jpg'; $('liveTitle').textContent = liveNow.title || ''; }
+    }).catch(function () {});
+  }
+  $('liveCard').onclick = function () { if (liveNow) play(liveNow.id, null); };
+  setInterval(function () { if (!document.hidden) checkLive(); }, 120000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) checkLive(); });
+  $('hBayans').onclick = function () { showPanel('bayans'); loadBayans(); checkLive(); };
 
   /* ---------- install ---------- */
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -533,7 +561,8 @@
     Array.prototype.forEach.call($('modeSeg').children, function (b) { b.classList.toggle('on', b.dataset.mode === S.mode); });
     var m = /[?&#]p(?:age)?=(\d+)/.exec(location.href);
     quiet = Date.now() + 500;
-    requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); if (!m) showHome(); });
+    try { history.replaceState({ base: 1 }, ''); history.pushState({ guard: 1 }, ''); } catch (e) {}
+    requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); if (!m) showHome(); else checkLive(); });
     maybeHint();
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(function () { return navigator.serviceWorker.ready; }).then(saveOffline).catch(function () {});
