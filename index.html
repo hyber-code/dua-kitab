@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Dua Kitab">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -42,17 +42,26 @@
   <button id="bMarks"><svg viewBox="0 0 24 24"><path d="M5 4h9a2 2 0 0 1 2 2v14l-6.5-4L3 20V6a2 2 0 0 1 2-2z" fill="none" stroke-width="2"/><path d="M19 7v13l-2-1.2" fill="none" stroke-width="2" stroke-linecap="round"/></svg><span>Bookmarks</span></button>
   <button id="bSave"><svg viewBox="0 0 24 24"><path class="fillable" d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z" stroke-width="2"/></svg><span id="saveLbl">Save page</span></button>
   <button id="bHl"><svg viewBox="0 0 24 24"><path d="M14.5 4.5 19.5 9.5 10 19H5v-5z" fill="none" stroke-width="2" stroke-linejoin="round"/><path d="M3 22h18" fill="none" stroke-width="2" stroke-linecap="round"/></svg><span>Highlight</span></button>
+  <button id="bShare"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8 15.7 6.4M8.3 13.2l7.4 4.4" fill="none" stroke-width="2"/></svg><span>Share</span></button>
 </nav>
 
 <!-- Home -->
 <section id="home" class="sheet-panel full" hidden>
   <div class="panel-head"><h2>Dua Kitab</h2><button class="close" data-close>Close</button></div>
   <div class="panel-body home-body">
-    <img id="coverImg" alt="Book cover" width="1288" height="1700">
+    <div class="shelf">
+      <button id="tBook1" class="tile">
+        <span class="art"><img id="coverImg" alt="" width="1288" height="1700"></span>
+        <span class="tt">Dua Kitab</span>
+        <span class="ts" id="tBook1Sub">Open the book</span>
+      </button>
+      <button id="hBayans" class="tile">
+        <span class="art yt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="none" stroke-width="1.6"/><path d="M9.6 7.6v8.8l7-4.4z"/></svg><span>Imani Majalis</span></span>
+        <span class="tt">Bayans</span>
+        <span class="ts">Latest talks on YouTube</span>
+      </button>
+    </div>
     <div class="home-actions">
-      <button id="hContinue" class="primary">Continue reading</button>
-      <button id="hContents">Contents</button>
-      <button id="hCover">Open the cover</button>
 
       <h3>Reading style</h3>
       <div class="seg" id="modeSeg">
@@ -95,6 +104,29 @@
   </div>
 </section>
 
+<!-- Share a dua -->
+<section id="shareDlg" class="dialog" hidden>
+  <div>
+    <h2>Share this dua</h2>
+    <p id="shareWhat"></p>
+    <div id="shareThumbs" class="thumbs"></div>
+    <div class="row"><button id="shareLess">&minus; Remove last page</button><button id="shareMore">+ Next page</button></div>
+    <p class="small">If the dua carries on over the page, tap "+ Next page" until all of it is included. The pages are sent as pictures, in order, with a link to the app.</p>
+    <div class="row"><button data-close>Cancel</button><button id="shareGo" class="primary">Share</button></div>
+  </div>
+</section>
+
+<!-- Bayans -->
+<section id="bayans" class="sheet-panel full" hidden>
+  <div class="panel-head"><h2>Bayans</h2><button class="close" data-close>Close</button></div>
+  <div id="player" hidden></div>
+  <div class="panel-body" id="bayanBody">
+    <p id="bayanMsg" class="small pad"></p>
+    <ul id="bayanList" class="vids"></ul>
+    <a id="bayanAll" class="allyt" href="https://www.youtube.com/@imanimajalis/videos" target="_blank" rel="noopener">See all bayans on YouTube</a>
+  </div>
+</section>
+
 <!-- Go to page -->
 <section id="goto" class="dialog" hidden>
   <form id="gotoForm">
@@ -133,6 +165,6 @@
 <div id="toast" hidden></div>
 <div id="scrim" hidden></div>
 
-<script src="app.js?v=1"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

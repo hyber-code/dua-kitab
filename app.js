@@ -11,6 +11,7 @@
   var backTo = null, backTimer = null;
   var deferredInstall = null;
   var openPanel = null;
+  var SITE = 'https://duabook.uk/';
 
   /* ---------- saved state ---------- */
   function loadState() {
@@ -323,7 +324,7 @@
     openPanel = id; $(id).hidden = false; $('scrim').hidden = false;
     try { history.pushState({ panel: id }, ''); } catch (e) {}
   }
-  function hidePanel() { if (!openPanel) return; $(openPanel).hidden = true; $('scrim').hidden = true; openPanel = null; }
+  function hidePanel() { if (!openPanel) return; if (openPanel === 'bayans') stopPlayer(); $(openPanel).hidden = true; $('scrim').hidden = true; openPanel = null; }
   function closePanel() {
     if (!openPanel) return;
     hidePanel();
@@ -334,8 +335,7 @@
   document.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) closePanel(); });
 
   $('bHome').onclick = function () {
-    $('hContinue').textContent = 'Continue reading (page ' + cur + ')';
-    showPanel('home');
+    showHome();
   };
   $('bIndex').onclick = function () { $('indexSearch').value = ''; renderIndex(); showPanel('index'); };
   $('bMarks').onclick = function () { renderMarks(); showPanel('marks'); };
@@ -349,15 +349,123 @@
     if (!v || v < 1 || v > D.pages) { toast('Enter a page from 1 to ' + D.pages); return; }
     closePanel(); goTo(v, true);
   };
-  $('hContinue').onclick = closePanel;
-  $('hContents').onclick = function () { closePanel(); goTo(D.contentsPage, true); };
-  $('hCover').onclick = function () { closePanel(); goTo(1, true); };
+  function showHome() {
+    $('tBook1Sub').textContent = cur > 1 ? 'Continue at page ' + cur : 'Open the book';
+    showPanel('home');
+  }
+  $('tBook1').onclick = closePanel;
   $('hShare').onclick = function () {
-    var url = location.origin + location.pathname;
+    var url = SITE;
     if (navigator.share) navigator.share({ title: D.title, text: 'Dua Kitab: the Complete Dua Book, free to read offline.', url: url }).catch(function () {});
     else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { toast('Link copied'); });
     else toast(url, null, null, 8000);
   };
+
+  /* ---------- share a dua (pages as pictures + link) ---------- */
+  var MAXSHARE = 10, shareFrom = 1, shareTo = 1, jpegs = {};
+  function pageJpeg(p) {           // page picture as a JPEG file (WhatsApp treats WebP as a sticker)
+    if (jpegs[p]) return jpegs[p];
+    jpegs[p] = fetch(pageSrc(p)).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.blob(); })
+      .then(function (blob) {
+        return new Promise(function (ok, bad) {
+          var u = URL.createObjectURL(blob), im = new Image();
+          im.onload = function () {
+            var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+            var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0);
+            URL.revokeObjectURL(u);
+            c.toBlob(function (b) { b ? ok(new File([b], 'dua-kitab-page-' + pad3(p) + '.jpg', { type: 'image/jpeg' })) : bad(new Error('jpeg')); }, 'image/jpeg', 0.88);
+          };
+          im.onerror = function () { URL.revokeObjectURL(u); bad(new Error('decode')); };
+          im.src = u;
+        });
+      });
+    jpegs[p].catch(function () { delete jpegs[p]; });
+    return jpegs[p];
+  }
+  var ready = {};
+  function shareText() {
+    var pg = shareFrom === shareTo ? 'page ' + shareFrom : 'pages ' + shareFrom + ' to ' + shareTo;
+    return sectionOf(shareFrom) + ' (' + pg + ')';
+  }
+  function shareLink() { return SITE + '#p=' + shareFrom; }
+  function renderShare() {
+    var n = shareTo - shareFrom + 1;
+    $('shareWhat').textContent = shareText();
+    var box = $('shareThumbs'); box.textContent = '';
+    for (var p = shareFrom; p <= shareTo; p++) {
+      var f = document.createElement('figure'), im = document.createElement('img');
+      im.src = pageSrc(p); im.alt = 'Page ' + p;
+      var cap = document.createElement('figcaption'); cap.textContent = 'Page ' + p;
+      f.appendChild(im); f.appendChild(cap); box.appendChild(f);
+    }
+    box.scrollLeft = box.scrollWidth;
+    $('shareLess').disabled = n <= 1;
+    $('shareMore').disabled = shareTo >= D.pages || n >= MAXSHARE;
+    prepareShare();
+  }
+  function prepareShare() {
+    var want = [], key = shareFrom + '-' + shareTo;
+    for (var p = shareFrom; p <= shareTo; p++) want.push(pageJpeg(p));
+    $('shareGo').disabled = true; $('shareGo').textContent = 'Preparing...';
+    Promise.all(want).then(function (files) {
+      if (key !== shareFrom + '-' + shareTo) return;
+      ready = { key: key, files: files };
+      $('shareGo').disabled = false; $('shareGo').textContent = 'Share ' + files.length + (files.length === 1 ? ' page' : ' pages');
+    }, function () {
+      if (key !== shareFrom + '-' + shareTo) return;
+      ready = { key: key, files: null };
+      $('shareGo').disabled = false; $('shareGo').textContent = 'Share link';
+    });
+  }
+  function shareLinkOnly() {
+    var text = 'Dua Kitab: ' + shareText(), url = shareLink();
+    if (navigator.share) return navigator.share({ title: 'Dua Kitab', text: text, url: url }).catch(function () {});
+    if (navigator.clipboard) return navigator.clipboard.writeText(text + '\n' + url).then(function () { toast('Link copied'); });
+    toast(url, null, null, 8000);
+  }
+  $('bShare').onclick = function () { shareFrom = cur; shareTo = cur; ready = {}; renderShare(); showPanel('shareDlg'); };
+  $('shareMore').onclick = function () { if (shareTo < D.pages && shareTo - shareFrom + 1 < MAXSHARE) { shareTo++; renderShare(); } };
+  $('shareLess').onclick = function () { if (shareTo > shareFrom) { shareTo--; renderShare(); } };
+  $('shareGo').onclick = function () {
+    var files = ready.key === shareFrom + '-' + shareTo ? ready.files : null;
+    var data = files && { files: files, title: 'Dua Kitab', text: 'Dua Kitab: ' + shareText() + '\nRead it in the app: ' + shareLink() };
+    if (data && navigator.canShare && navigator.canShare({ files: files })) {
+      navigator.share(data).then(closePanel).catch(function (e) { if (e && e.name !== 'AbortError') shareLinkOnly(); });
+    } else { shareLinkOnly(); }
+  };
+
+  /* ---------- bayans (madrasa YouTube channel, newest 15) ---------- */
+  function stopPlayer() { var pl = $('player'); pl.textContent = ''; pl.hidden = true; }
+  function play(id, li) {
+    var pl = $('player'); pl.textContent = '';
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&playsinline=1&rel=0';
+    f.title = 'Bayan'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+    pl.appendChild(f); pl.hidden = false;
+    Array.prototype.forEach.call($('bayanList').children, function (x) { x.classList.toggle('playing', x === li); });
+    $('bayanBody').scrollTop = 0;
+  }
+  function loadBayans() {
+    var msg = $('bayanMsg'), ul = $('bayanList');
+    if (!ul.children.length) msg.textContent = 'Loading the latest bayans...';
+    fetch('api/bayans').then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.videos || !j.videos.length) throw new Error('empty');
+      msg.textContent = 'Latest ' + j.videos.length + ' bayans. Tap one to play. Needs internet.';
+      ul.textContent = '';
+      j.videos.forEach(function (v) {
+        var li = document.createElement('li'), b = document.createElement('button');
+        var im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.src = v.thumb;
+        var t = document.createElement('span'); t.className = 'vt'; t.dir = 'auto'; t.textContent = v.title;
+        var d = document.createElement('span'); d.className = 'vd';
+        var dt = new Date(v.published); d.textContent = isNaN(dt) ? '' : dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        b.appendChild(im); b.appendChild(t); b.appendChild(d); b.onclick = function () { play(v.id, li); };
+        li.appendChild(b); ul.appendChild(li);
+      });
+    }).catch(function () {
+      if (!ul.children.length) msg.textContent = 'Could not load the bayans. They need an internet connection. Please try again later.';
+    });
+  }
+  $('hBayans').onclick = function () { showPanel('bayans'); loadBayans(); };
 
   /* ---------- install ---------- */
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -424,7 +532,7 @@
     Array.prototype.forEach.call($('modeSeg').children, function (b) { b.classList.toggle('on', b.dataset.mode === S.mode); });
     var m = /[?&#]p(?:age)?=(\d+)/.exec(location.href);
     quiet = Date.now() + 500;
-    requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); });
+    requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); if (!m) showHome(); });
     maybeHint();
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').then(function () { return navigator.serviceWorker.ready; }).then(saveOffline).catch(function () {});
