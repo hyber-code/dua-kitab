@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dua Kitab has moved</title>
+<link rel="canonical" href="https://duabook.uk/">
+<meta http-equiv="refresh" content="3;url=https://duabook.uk/">
+<style>body{font-family:system-ui,sans-serif;background:#14532d;color:#fff;text-align:center;padding:3em 1em}a{color:#fde68a;font-size:1.3em}</style>
+<script>
+(function () {
+  var go = function () { location.replace('https://duabook.uk/' + location.hash); };
+  var t = [];
+  if ('serviceWorker' in navigator) t.push(navigator.serviceWorker.getRegistrations().then(function (r) { return Promise.all(r.map(function (x) { return x.unregister(); })); }));
+  if ('caches' in window) t.push(caches.keys().then(function (k) { return Promise.all(k.map(function (n) { return caches.delete(n); })); }));
+  Promise.all(t).then(go, go); setTimeout(go, 1500);
+})();
+</script></head>
+<body><h1>Dua Kitab has moved</h1><p>The new address is</p><p><a href="https://duabook.uk/">duabook.uk</a></p>
+<p>Please add the new address to your home screen and remove the old icon.</p></body></html>
