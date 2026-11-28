@@ -1,6 +1,6 @@
 # Dua Kitab
 
-A free, offline-capable web app of the Complete Dua Book (Kitab ud Dua).
+An offline-capable web app of the Complete Dua Book (Kitab ud Dua).
 
 Open the link on a phone and add it to the home screen:
 
