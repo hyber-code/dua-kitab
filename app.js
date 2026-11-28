@@ -2,8 +2,7 @@
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var BOOK = window.BOOK || { id: 'main', data: 'data.json', key: 'duakitab.v1', sw: 'sw.js', url: '' };
-  var KEY = BOOK.key;
+  var KEY = 'duakitab.v1';
   var D = null;            // book data (data.json)
   var S = null;            // saved reader state
   var reader = $('reader');
@@ -56,8 +55,7 @@
 
   /* ---------- helpers ---------- */
   function pad3(n) { return ('00' + n).slice(-3); }
-  function pdir() { return D.pdir || ('e' + D.edition); }
-  function pageSrc(p) { return 'pages/' + pdir() + '/' + pad3(p) + '.webp'; }
+  function pageSrc(p) { return 'pages/e' + D.edition + '/' + pad3(p) + '.webp'; }
   function sectionOf(p) {
     var name = p < D.contentsPage ? 'Introduction' : 'Contents';
     for (var i = 0; i < D.sections.length; i++) if (D.sections[i].page <= p) name = D.sections[i].en;
@@ -352,18 +350,10 @@
     closePanel(); goTo(v, true);
   };
   function showHome() {
-    Array.prototype.forEach.call(document.querySelectorAll('.tile[data-book]'), function (t) {
-      var last = 0;
-      if (t.dataset.book === BOOK.id) last = cur;
-      else { try { last = (JSON.parse(localStorage.getItem(t.dataset.key)) || {}).last || 0; } catch (e) {} }
-      t.querySelector('.ts').textContent = last > 1 ? 'Continue at page ' + last : 'Open the book';
-    });
+    $('tBook1Sub').textContent = cur > 1 ? 'Continue at page ' + cur : 'Open the book';
     showPanel('home');
   }
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest('.tile[data-book]'); if (!t) return;
-    if (t.dataset.book === BOOK.id) closePanel(); else location.href = t.dataset.href;
-  });
+  $('tBook1').onclick = closePanel;
   $('hShare').onclick = function () { showPanel('appShare'); };
   $('appShareLink').onclick = function () {
     var url = SITE;
@@ -398,7 +388,7 @@
     var pg = shareFrom === shareTo ? 'page ' + shareFrom : 'pages ' + shareFrom + ' to ' + shareTo;
     return sectionOf(shareFrom) + ' (' + pg + ')';
   }
-  function shareLink() { return SITE + BOOK.url + '#p=' + shareFrom; }
+  function shareLink() { return SITE + '#p=' + shareFrom; }
   function renderShare() {
     var n = shareTo - shareFrom + 1;
     $('shareWhat').textContent = shareText();
@@ -459,7 +449,7 @@
   function loadBayans() {
     var msg = $('bayanMsg'), ul = $('bayanList');
     if (!ul.children.length) msg.textContent = 'Loading the latest bayans...';
-    fetch('/api/bayans').then(function (r) { return r.json(); }).then(function (j) {
+    fetch('api/bayans').then(function (r) { return r.json(); }).then(function (j) {
       if (!j.videos || !j.videos.length) throw new Error('empty');
       msg.textContent = 'Latest ' + j.videos.length + ' bayans. Tap one to play. Needs internet.';
       ul.textContent = '';
@@ -508,7 +498,7 @@
   }
   function saveOffline() {
     if (!('caches' in window) || !('serviceWorker' in navigator)) { $('offlineInfo').textContent = 'Offline reading is not supported in this browser.'; return; }
-    var name = 'pages-' + pdir(), prefix = name.replace(/\d+$/, ''), done = 0, next = 1;
+    var name = 'pages-e' + D.edition, done = 0, next = 1;
     caches.open(name).then(function (cache) {
       function one() {
         if (next > D.pages) return Promise.resolve();
@@ -522,7 +512,7 @@
       return Promise.all([one(), one(), one(), one()]).then(function () {
         offlineText(done);
         if (done >= D.pages) return caches.keys().then(function (keys) {
-          keys.forEach(function (k) { if (k.indexOf(prefix) === 0 && /^\d+$/.test(k.slice(prefix.length)) && k !== name) caches.delete(k); });
+          keys.forEach(function (k) { if (k.indexOf('pages-e') === 0 && k !== name) caches.delete(k); });
         });
       });
     }).catch(function () {});
@@ -535,6 +525,7 @@
     S = loadState(); migrate();
     if (/[?&]zones=1/.test(location.search)) document.body.classList.add('zones-debug');
     $('tot').textContent = D.pages; $('gotoMax').textContent = D.pages; $('gotoInput').max = D.pages;
+    $('coverImg').src = pageSrc(1);
     $('editionInfo').textContent = 'Edition ' + D.edition + ', ' + D.editionDate + '.';
     applyTheme();
     buildPages();
@@ -542,10 +533,10 @@
     Array.prototype.forEach.call($('modeSeg').children, function (b) { b.classList.toggle('on', b.dataset.mode === S.mode); });
     var m = /[?&#]p(?:age)?=(\d+)/.exec(location.href);
     quiet = Date.now() + 500;
-    requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); if (!m && !/#read/.test(location.hash)) showHome(); });
+    requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); if (!m) showHome(); });
     maybeHint();
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register(BOOK.sw, { scope: '/' }).then(function () { return navigator.serviceWorker.ready; }).then(saveOffline).catch(function () {});
+      navigator.serviceWorker.register('sw.js').then(function () { return navigator.serviceWorker.ready; }).then(saveOffline).catch(function () {});
     }
   }
   fetch('data.json').then(function (r) { return r.json(); }).then(start).catch(function () {
