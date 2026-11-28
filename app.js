@@ -319,29 +319,48 @@
   });
 
   /* ---------- panels ---------- */
-  function showPanel(id) {
-    if (openPanel) hidePanel();
-    openPanel = id; $(id).hidden = false; $('scrim').hidden = false;
-    try { history.pushState({ panel: id }, ''); } catch (e) {}
-  }
+  /* Screens and the Back button.
+     History: [base] = main page level, [guard] = reading the book, [panel] = a screen on top.
+     The main page (home) is the root: Bayans etc. return to it; Back on it asks before closing. */
+  var HOME_CHILD = { bayans: 1, appShare: 1, install: 1 };
   var closing = false, leaving = false;
+  function showPanel(id) {
+    var had = !!openPanel && openPanel !== 'exitDlg';   // the close question has no history entry of its own
+    if (openPanel) hidePanel();
+    leaving = false;
+    openPanel = id; $(id).hidden = false; $('scrim').hidden = false;
+    var st = history.state || {};
+    try {
+      if (had || (id === 'home' && st.guard)) history.replaceState({ panel: id }, '');
+      else history.pushState({ panel: id }, '');
+    } catch (e) {}
+  }
   function hidePanel() { if (!openPanel) return; if (openPanel === 'bayans') stopPlayer(); $(openPanel).hidden = true; $('scrim').hidden = true; openPanel = null; }
   function closePanel() {
     if (!openPanel) return;
-    if (openPanel === 'exitDlg') { hidePanel(); try { history.pushState({ guard: 1 }, ''); } catch (e) {} return; }
+    if (openPanel === 'exitDlg' || HOME_CHILD[openPanel]) { showHome(); return; }
+    if (openPanel === 'home') { openBook(); return; }
     hidePanel();
     try { if (history.state && history.state.panel) { closing = true; history.back(); } } catch (e) {}
   }
-  /* Back button: closes an open panel; at the reading level it asks before closing the app. */
+  function openBook() {                       // from the main page into the book
+    hidePanel();
+    try { history.replaceState({ guard: 1 }, ''); } catch (e) {}
+  }
   window.addEventListener('popstate', function () {
     if (closing) { closing = false; return; }
-    if (openPanel) { hidePanel(); return; }
-    if (leaving || !D) return;
-    openPanel = 'exitDlg'; $('exitDlg').hidden = false; $('scrim').hidden = false;   // shown without a new history entry
+    if (!D || leaving) return;
+    if (openPanel === 'home') {               // Back on the main page: ask before closing (no new history entry)
+      hidePanel(); openPanel = 'exitDlg'; $('exitDlg').hidden = false; $('scrim').hidden = false; return;
+    }
+    if (openPanel === 'exitDlg') { hidePanel(); return; }
+    if (openPanel && !HOME_CHILD[openPanel]) { hidePanel(); return; }   // Index, Bookmarks...: back to the page
+    hidePanel(); showHome();                  // Bayans or the book itself: back to the main page
   });
   $('exitStay').onclick = closePanel;
   $('exitGo').onclick = function () {
     leaving = true; hidePanel();
+    openPanel = 'home'; $('home').hidden = false; $('scrim').hidden = false;   // stay on the main page, no new history entry
     try { window.close(); } catch (e) {}
     setTimeout(function () { toast('Press Back once more to close.', null, null, 4000); }, 300);
   };
@@ -368,7 +387,7 @@
     showPanel('home');
     checkLive();
   }
-  $('tBook1').onclick = closePanel;
+  $('tBook1').onclick = openBook;
   $('hShare').onclick = function () { showPanel('appShare'); };
   $('appShareLink').onclick = function () {
     var url = SITE;
@@ -561,7 +580,7 @@
     Array.prototype.forEach.call($('modeSeg').children, function (b) { b.classList.toggle('on', b.dataset.mode === S.mode); });
     var m = /[?&#]p(?:age)?=(\d+)/.exec(location.href);
     quiet = Date.now() + 500;
-    try { history.replaceState({ base: 1 }, ''); history.pushState({ guard: 1 }, ''); } catch (e) {}
+    try { history.replaceState({ base: 1 }, ''); if (m) history.pushState({ guard: 1 }, ''); } catch (e) {}
     requestAnimationFrame(function () { goTo(m ? +m[1] : S.last); if (!m) showHome(); else checkLive(); });
     maybeHint();
     if ('serviceWorker' in navigator) {
